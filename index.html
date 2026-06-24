@@ -1222,9 +1222,20 @@ footer {
 }
 
 /* ── RESPONSIVE ── */
+.mobile-menu-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
 @media (max-width: 960px) {
   nav { padding: 0 1.5rem; }
   .nav-links { display: none; }
+  .mobile-menu-btn { display: block; }
   section, .vyhody-inner { padding: 4rem 1.5rem; }
   #hero { grid-template-columns: 1fr; }
   .hero-left { padding: 4rem 1.5rem 3rem; }
@@ -1270,7 +1281,31 @@ footer {
       <button onclick="switchLang()" id="lang-btn" style="background:none;border:1px solid var(--border);color:var(--text-mid);padding:0.4rem 0.85rem;font-family:var(--font-body);font-size:12px;font-weight:600;letter-spacing:0.1em;cursor:pointer;border-radius:2px;transition:all 0.2s;">EN</button>
     </li>
   </ul>
+  <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu" onclick="toggleMobileMenu()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
 </nav>
+
+<!-- MOBILE MENU OVERLAY -->
+<div id="mobile-menu" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(26,26,24,0.98); z-index:200; flex-direction:column; align-items:center; justify-content:center; gap:2rem;">
+  <button onclick="toggleMobileMenu()" style="position:absolute; top:1.5rem; right:1.5rem; background:none; border:none; color:white; cursor:pointer;">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="18" y1="6" x2="6" y2="18"/>
+      <line x1="6" y1="6" x2="18" y2="18"/>
+    </svg>
+  </button>
+  <a href="#o-nas" onclick="toggleMobileMenu()" style="color:white; text-decoration:none; font-family:var(--font-display); font-size:32px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;" id="mob-about">O spoločnosti</a>
+  <a href="#vyroba" onclick="toggleMobileMenu()" style="color:white; text-decoration:none; font-family:var(--font-display); font-size:32px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;" id="mob-production">Výroba</a>
+  <a href="#odvetvia" onclick="toggleMobileMenu()" style="color:white; text-decoration:none; font-family:var(--font-display); font-size:32px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;" id="mob-industries">Odvetvia</a>
+  <a href="#kvalita" onclick="toggleMobileMenu()" style="color:white; text-decoration:none; font-family:var(--font-display); font-size:32px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;" id="mob-quality">Kvalita</a>
+  <a href="#capi" onclick="toggleMobileMenu()" style="color:white; text-decoration:none; font-family:var(--font-display); font-size:32px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em;" id="mob-capi">CAPI Group</a>
+  <a href="#kontakt" onclick="toggleMobileMenu()" style="background:var(--accent); color:white; text-decoration:none; font-family:var(--font-display); font-size:24px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:1rem 2.5rem; border-radius:2px;" id="mob-contact">Kontakt</a>
+  <button onclick="switchLang(); toggleMobileMenu();" style="background:none; border:1px solid rgba(255,255,255,0.3); color:rgba(255,255,255,0.7); font-family:var(--font-body); font-size:14px; font-weight:600; letter-spacing:0.1em; padding:0.5rem 1.25rem; cursor:pointer; border-radius:2px;" id="mob-lang-btn">EN</button>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -1757,6 +1792,21 @@ footer {
   reveals.forEach(el => obs.observe(el));
 </script>
 <script>
+// ── MOBILE MENU ──
+function toggleMobileMenu() {
+  var menu = document.getElementById('mobile-menu');
+  if (menu.style.display === 'flex') {
+    menu.style.display = 'none';
+    document.body.style.overflow = '';
+  } else {
+    menu.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    // Sync lang button
+    var mobBtn = document.getElementById('mob-lang-btn');
+    if (mobBtn) mobBtn.textContent = currentLang === 'sk' ? 'EN' : 'SK';
+  }
+}
+
 // ── LANGUAGE SWITCHER ──
 var currentLang = 'sk';
 
@@ -1991,6 +2041,22 @@ function applyLang() {
   document.title = currentLang === 'sk'
     ? 'CPS Components – Presné CNC obrábanie'
     : 'CPS Components – Precision CNC Machining';
+
+  // Translate mobile menu
+  var mobLinks = {
+    'mob-about':      translations['nav-about'],
+    'mob-production': translations['nav-production'],
+    'mob-industries': translations['nav-industries'],
+    'mob-quality':    translations['nav-quality'],
+    'mob-capi':       translations['nav-capi'] || { sk: 'CAPI Group', en: 'CAPI Group' },
+    'mob-contact':    translations['nav-contact'],
+  };
+  Object.keys(mobLinks).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && mobLinks[id]) el.innerHTML = mobLinks[id][currentLang];
+  });
+  var mobLangBtn = document.getElementById('mob-lang-btn');
+  if (mobLangBtn) mobLangBtn.textContent = currentLang === 'sk' ? 'EN' : 'SK';
 
   // Store preference
   try { localStorage.setItem('cps_lang', currentLang); } catch(e) {}
